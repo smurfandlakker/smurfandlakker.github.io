@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель | Мыльная фантазия</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Мыльная фантазия - Админ-панель</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">На сайт</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="admin-section">
+        <div class="container">
+            <h2>Добавить новый товар</h2>
+            <form id="add-product-form">
+                <div class="form-group">
+                    <label for="product-name">Название:</label>
+                    <input type="text" id="product-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-description">Описание:</label>
+                    <textarea id="product-description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="product-price">Цена (₽):</label>
+                    <input type="number" id="product-price" required>
+                </div>
+                <div class="form-group">
+                    <label for="product-category">Категория:</label>
+                    <select id="product-category" required>
+                        <option value="regular">Обычное мыло</option>
+                        <option value="antibacterial">Антибактериальное мыло</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="product-image">URL изображения:</label>
+                    <input type="url" id="product-image" required>
+                </div>
+                <button type="submit" class="btn">Добавить товар</button>
+            </form>
+
+            <h2>Список товаров</h2>
+            <div class="products-list" id="admin-products-list">
+                <!-- Товары будут загружены здесь -->
+            </div>
+        </div>
+    </section>
+
+    <script src="db.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загрузка всех товаров
+            loadProducts().then(products => {
+                renderProductsList(products);
+            });
+
+            // Обработка формы добавления товара
+            document.getElementById('add-product-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const newProduct = {
+                    id: Date.now(), // Используем timestamp как ID
+                    name: document.getElementById('product-name').value,
+                    description: document.getElementById('product-description').value,
+                    price: parseInt(document.getElementById('product-price').value),
+                    category: document.getElementById('product-category').value,
+                    image: document.getElementById('product-image').value
+                };
+
+                addProductToDB(newProduct).then(() => {
+                    showNotification('Товар успешно добавлен!');
+                    this.reset();
+                    return loadProducts();
+                }).then(products => {
+                    renderProductsList(products);
+                }).catch(error => {
+                    console.error('Ошибка при добавлении товара:', error);
+                    showNotification('Ошибка при добавлении товара');
+                });
+            });
+        });
+
+        function addProductToDB(product) {
+            return new Promise((resolve, reject) => {
+                initDB().then(db => {
+                    const transaction = db.transaction(['products'], 'readwrite');
+                    const store = transaction.objectStore('products');
+                    const request = store.add(product);
+
+                    request.onsuccess = function() {
+                        resolve();
+                    };
+
+                    request.onerror = function(event) {
+                        reject(event.target.error);
+                    };
+                }).catch(error => {
+                    reject(error);
+                });
+            });
+        }
+
+        function renderProductsList(products) {
+            const container = document.getElementById('admin-products-list');
+            if (container) {
+                container.innerHTML = products.map(product => `
+                    <div class="admin-product-card">
+                        <div class="admin-product-image">
+                            <img src="${product.image}" alt="${product.name}" width="80">
+                        </div>
+                        <div class="admin-product-info">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                            <div class="admin-product-meta">
+                                <span>Цена: ${product.price} ₽</span>
+                                <span>Категория: ${product.category === 'regular' ? 'Обычное' : 'Антибактериальное'}</span>
+                            </div>
+                        </div>
+                        <button class="delete-product" data-id="${product.id}">Удалить</button>
+                    </div>
+                `).join('');
+
+                // Добавляем обработчики для кнопок удаления
+                document.querySelectorAll('.delete-product').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = parseInt(this.getAttribute('data-id'));
+                        if (confirm('Вы уверены, что хотите удалить этот товар?')) {
+                            deleteProduct(productId).then(() => {
+                                return loadProducts();
+                            }).then(products => {
+                                renderProductsList(products);
+                                showNotification('Товар удален');
+                            }).catch(console.error);
+                        }
+                    });
+                });
+            }
+        }
+
+        function deleteProduct(productId) {
+            return new Promise((resolve, reject) => {
+                initDB().then(db => {
+                    const transaction = db.transaction(['products'], 'readwrite');
+                    const store = transaction.objectStore('products');
+                    const request = store.delete(productId);
+
+                    request.onsuccess = function() {
+                        resolve();
+                    };
+
+                    request.onerror = function(event) {
+                        reject(event.target.error);
+                    };
+                }).catch(error => {
+                    reject(error);
+                });
+            });
+        }
+    </script>
+
+    <style>
+        .admin-section {
+            padding: 40px 0;
+        }
+
+        #add-product-form {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            padding: 30px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .products-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .admin-product-card {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            margin-bottom: 15px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            gap: 20px;
+        }
+
+        .admin-product-image img {
+            border-radius: 5px;
+        }
+
+        .admin-product-info {
+            flex: 1;
+        }
+
+        .admin-product-info h3 {
+            margin: 0 0 10px;
+        }
+
+        .admin-product-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .delete-product {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .delete-product:hover {
+            background-color: #ff5252;
+        }
+
+        @media (max-width: 768px) {
+            .admin-product-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .admin-product-meta {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .delete-product {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мыльная фантазия - Рукодельное мыло ручной работы</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Мыльная фантазия</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="products/regular.html">Обычное мыло</a></li>
+                    <li><a href="products/antibacterial.html">Антибактериальное</a></li>
+                    <li><a href="products/all.html">Все продукты</a></li>
+                    <li><a href="cart.html">Корзина</a></li>
+                    <li><a href="reviews.html">Отзывы</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon">
+                <a href="cart.html">🛒 <span id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>Мыло ручной работы</h1>
+            <p>Натуральные ингредиенты, уникальный дизайн и забота о вашей коже</p>
+            <a href="products/all.html" class="btn">Смотреть каталог</a>
+        </div>
+    </section>
+
+    <section class="featured-products">
+        <div class="container">
+            <h2>Популярные товары</h2>
+            <div class="products-grid" id="featured-products">
+                <!-- Товары будут загружены через JS -->
+            </div>
+        </div>
+    </section>
+
+    <section class="about">
+        <div class="container">
+            <h2>О нашем мыле</h2>
+            <p>Мы создаем мыло с любовью и заботой о вашей коже. Только натуральные ингредиенты, экологичная упаковка и уникальный дизайн каждого кусочка.</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Мыльная фантазия</h3>
+                    <p>Рукодельное мыло ручной работы</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Email: info@soapfantasy.ru</p>
+                    <p>Телефон: +7 (123) 456-78-90</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Меню</h3>
+                    <ul>
+                        <li><a href="index.html">Главная</a></li>
+                        <li><a href="products/all.html">Продукты</a></li>
+                        <li><a href="cart.html">Корзина</a></li>
+                        <li><a href="reviews.html">Отзывы</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="db.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загрузка избранных товаров
+            loadFeaturedProducts();
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>

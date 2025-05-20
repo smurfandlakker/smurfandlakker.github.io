@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Антибактериальное мыло | Мыльная фантазия</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Мыльная фантазия</div>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">Главная</a></li>
+                    <li><a href="regular.html">Обычное мыло</a></li>
+                    <li><a href="antibacterial.html" class="active">Антибактериальное</a></li>
+                    <li><a href="all.html">Все продукты</a></li>
+                    <li><a href="../cart.html">Корзина</a></li>
+                    <li><a href="../reviews.html">Отзывы</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon">
+                <a href="../cart.html">🛒 <span id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <section class="products-section">
+        <div class="container">
+            <h2>Антибактериальное мыло</h2>
+            <div class="products-grid" id="products-container">
+                <!-- Товары будут загружены через JS -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Мыльная фантазия</h3>
+                    <p>Рукодельное мыло ручной работы</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Email: info@soapfantasy.ru</p>
+                    <p>Телефон: +7 (123) 456-78-90</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Меню</h3>
+                    <ul>
+                        <li><a href="../index.html">Главная</a></li>
+                        <li><a href="all.html">Продукты</a></li>
+                        <li><a href="../cart.html">Корзина</a></li>
+                        <li><a href="../reviews.html">Отзывы</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../db.js"></script>
+    <script src="../script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts('antibacterial').then(products => {
+                const container = document.getElementById('products-container');
+                if (container) {
+                    container.innerHTML = products.map(product => `
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="${product.image}" alt="${product.name}">
+                            </div>
+                            <div class="product-info">
+                                <h3>${product.name}</h3>
+                                <p>${product.description}</p>
+                                <div class="product-price">${product.price} ₽</div>
+                                <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    // Добавляем обработчики событий для кнопок "В корзину"
+                    document.querySelectorAll('.add-to-cart').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const productId = parseInt(this.getAttribute('data-id'));
+                            addToCart(productId);
+                        });
+                    });
+                }
+            }).catch(error => {
+                console.error('Ошибка при загрузке продуктов:', error);
+            });
+
+            updateCartCount();
+        });
+    </script>
+</body>
+</html>

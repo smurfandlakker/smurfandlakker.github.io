@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отзывы | Мыльная фантазия</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Мыльная фантазия</div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="products/regular.html">Обычное мыло</a></li>
+                    <li><a href="products/antibacterial.html">Антибактериальное</a></li>
+                    <li><a href="products/all.html">Все продукты</a></li>
+                    <li><a href="cart.html">Корзина</a></li>
+                    <li><a href="reviews.html" class="active">Отзывы</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon">
+                <a href="cart.html">🛒 <span id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <section class="reviews-section">
+        <div class="container">
+            <h2>Отзывы наших клиентов</h2>
+            
+            <div class="add-review-form">
+                <h3>Оставить отзыв</h3>
+                <form id="review-form">
+                    <div class="form-group">
+                        <label for="review-product">Выберите продукт:</label>
+                        <select id="review-product" name="productId" required>
+                            <option value="">-- Выберите продукт --</option>
+                            <!-- Опции будут загружены через JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-name">Ваше имя:</label>
+                        <input type="text" id="review-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-text">Ваш отзыв:</label>
+                        <textarea id="review-text" name="text" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="review-rating">Оценка:</label>
+                        <div class="rating-stars">
+                            <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" checked><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn">Отправить отзыв</button>
+                </form>
+            </div>
+            
+            <div class="reviews-list" id="reviews-container">
+                <!-- Отзывы будут загружены через JS -->
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Мыльная фантазия</h3>
+                    <p>Рукодельное мыло ручной работы</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Email: info@soapfantasy.ru</p>
+                    <p>Телефон: +7 (123) 456-78-90</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Меню</h3>
+                    <ul>
+                        <li><a href="index.html">Главная</a></li>
+                        <li><a href="products/all.html">Продукты</a></li>
+                        <li><a href="cart.html">Корзина</a></li>
+                        <li><a href="reviews.html">Отзывы</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="db.js"></script>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Загрузка продуктов для выпадающего списка
+            loadProducts().then(products => {
+                const select = document.getElementById('review-product');
+                if (select) {
+                    products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product.id;
+                        option.textContent = product.name;
+                        select.appendChild(option);
+                    });
+                }
+            });
+
+            // Загрузка отзывов
+            loadReviews();
+
+            // Отправка формы отзыва
+            document.getElementById('review-form')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    productId: parseInt(document.getElementById('review-product').value),
+                    name: document.getElementById('review-name').value,
+                    text: document.getElementById('review-text').value,
+                    rating: parseInt(document.querySelector('input[name="rating"]:checked').value),
+                    date: new Date().toISOString()
+                };
+
+                addReview(formData).then(() => {
+                    showNotification('Отзыв успешно добавлен!');
+                    document.getElementById('review-form').reset();
+                    loadReviews();
+                }).catch(error => {
+                    console.error('Ошибка при добавлении отзыва:', error);
+                    showNotification('Произошла ошибка при добавлении отзыва');
+                });
+            });
+
+            updateCartCount();
+        });
+
+        function loadReviews() {
+            getAllReviews().then(reviews => {
+                const container = document.getElementById('reviews-container');
+                if (container) {
+                    if (reviews.length === 0) {
+                        container.innerHTML = '<p class="no-reviews">Пока нет отзывов. Будьте первым!</p>';
+                        return;
+                    }
+
+                    // Сначала получаем все продукты для отображения названий
+                    loadProducts().then(products => {
+                        container.innerHTML = reviews.map(review => {
+                            const product = products.find(p => p.id === review.productId);
+                            const productName = product ? product.name : 'Неизвестный продукт';
+                            
+                            return `
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <h3>${productName}</h3>
+                                        <div class="review-rating">
+                                            ${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}
+                                        </div>
+                                    </div>
+                                    <div class="review-body">
+                                        <p>${review.text}</p>
+                                    </div>
+                                    <div class="review-footer">
+                                        <span class="review-author">${review.name}</span>
+                                        <span class="review-date">${new Date(review.date).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    });
+                }
+            }).catch(error => {
+                console.error('Ошибка при загрузке отзывов:', error);
+            });
+        }
+    </script>
+
+    <style>
+        .reviews-section {
+            padding-bottom: 80px;
+        }
+
+        .add-review-form {
+            max-width: 600px;
+            margin: 0 auto 50px;
+            padding: 30px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .add-review-form h3 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+
+        .rating-stars {
+            display: flex;
+            direction: rtl;
+            justify-content: flex-end;
+        }
+
+        .rating-stars input {
+            display: none;
+        }
+
+        .rating-stars label {
+            font-size: 30px;
+            color: #ccc;
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .rating-stars input:checked ~ label,
+        .rating-stars label:hover,
+        .rating-stars label:hover ~ label {
+            color: #ffc107;
+        }
+
+        .reviews-list {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .review-item {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .review-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .review-rating {
+            color: #ffc107;
+            font-size: 20px;
+        }
+
+        .review-body p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .review-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .no-reviews {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            padding: 50px 0;
+        }
+
+        @media (max-width: 768px) {
+            .add-review-form {
+                padding: 20px;
+            }
+
+            .review-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .review-rating {
+                margin-top: 10px;
+            }
+        }
+    </style>
+</body>
+</html>
