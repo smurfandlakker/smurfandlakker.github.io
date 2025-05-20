@@ -199,7 +199,7 @@ function initializeWithSampleData() {
                         description: 'Успокаивающее мыло с натуральной лавандой',
                         price: 350,
                         category: 'regular',
-                        image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
+                        image: 'https://i.pinimg.com/736x/8f/77/51/8f775188416b88ea67b4bf981c15e489.jpg'
                     },
                     {
                         id: 2,
@@ -207,7 +207,7 @@ function initializeWithSampleData() {
                         description: 'Питательное мыло с натуральным медом',
                         price: 380,
                         category: 'regular',
-                        image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
+                        image: 'https://avatars.mds.yandex.net/i?id=56047d48b27a997c19913fe86efffd8e_sr-9151390-images-thumbs&n=13'
                     },
                     {
                         id: 3,
@@ -215,7 +215,7 @@ function initializeWithSampleData() {
                         description: 'Защита от бактерий с маслом чайного дерева',
                         price: 420,
                         category: 'antibacterial',
-                        image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
+                        image: 'https://i.pinimg.com/736x/7d/d6/be/7dd6be90d1d7dd978c71314ec7710a53.jpg'
                     },
                     {
                         id: 4,
@@ -223,7 +223,7 @@ function initializeWithSampleData() {
                         description: 'Бодрящее мыло с цитрусовыми маслами',
                         price: 370,
                         category: 'regular',
-                        image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
+                        image: 'https://avatars.mds.yandex.net/i?id=2722169426275c85e9191d370eccea2d_l-5304992-images-thumbs&n=13'
                     },
                     {
                         id: 5,
@@ -231,7 +231,7 @@ function initializeWithSampleData() {
                         description: 'Очищающее мыло с эвкалиптовым маслом',
                         price: 400,
                         category: 'antibacterial',
-                        image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
+                        image: 'https://i.pinimg.com/736x/65/5b/53/655b53a1f727a252ddfa46b6c4f29c2e.jpg'
                     },
                     {
                         id: 6,
@@ -239,7 +239,7 @@ function initializeWithSampleData() {
                         description: 'Мыло-скраб с кофейной гущей',
                         price: 390,
                         category: 'regular',
-                        image: 'https://images.unsplash.com/photo-1594035910387-fea47794261f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80'
+                        image: 'https://avatars.mds.yandex.net/get-pdb/51720/9d12ea46-96ed-41bf-a0e4-1c1f6b0a18cd/s1200?webp=false'
                     }
                 ];
 
