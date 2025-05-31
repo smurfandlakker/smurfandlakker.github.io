@@ -6,6 +6,7 @@
     <title>Мои заказы | Мыльная фантазия</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -28,43 +29,41 @@
         </div>
     </header>
 
-    <section class="orders-section">
-        <div class="container">
-            <h2>Мои заказы</h2>
-            <div class="order-search">
-                <input type="email" id="order-email" placeholder="Введите email, указанный при заказе">
-                <button id="search-orders" class="btn">Найти заказы</button>
+    <main>
+        <section class="orders-section">
+            <div class="container">
+                <h2>Мои заказы</h2>
+                <div class="order-search">
+                    <input type="email" id="order-email" placeholder="Введите email, указанный при заказе">
+                    <button id="search-orders" class="btn">Найти заказы</button>
+                </div>
+                <div class="orders-list" id="orders-container">
+                    <p class="no-orders">Введите ваш email для поиска заказов</p>
+                </div>
             </div>
-            <div class="orders-list" id="orders-container">
-                <p class="no-orders">Введите ваш email для поиска заказов</p>
-            </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <footer>
+    <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Мыльная фантазия</h3>
-                    <p>Рукодельное мыло ручной работы</p>
-                </div>
-                <div class="footer-section">
                     <h3>Контакты</h3>
-                    <p>Email: info@soapfantasy.ru</p>
-                    <p>Телефон: +7 953 035 30 94</p>
-                    <p>Адрес: г. Москва, ул. Мыльная, д. 1</p>
+                    <p><i class="fas fa-envelope"></i> info@soapfantasy.ru</p>
+                    <p><i class="fas fa-phone"></i> +7 953 035 30 94</p>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
                     <ul>
                         <li><a href="index.html">Главная</a></li>
-                        <li><a href="products/all.html">Продукты</a></li>
+                        <li><a href="products/all.html">Каталог</a></li>
                         <li><a href="cart.html">Корзина</a></li>
                         <li><a href="reviews.html">Отзывы</a></li>
                     </ul>
                 </div>
             </div>
-            <div class="copyright">
+            <div class="footer-bottom">
                 <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
             </div>
         </div>
@@ -91,41 +90,6 @@
             });
         });
 
-        function getOrdersByEmail(email) {
-            return new Promise((resolve) => {
-                // В реальной реализации здесь будет запрос к базе данных
-                // Для примера используем mock-данные
-                const mockOrders = [
-                    {
-                        id: 1001,
-                        date: '2023-05-15',
-                        total: 1250,
-                        status: 'Доставлен',
-                        email: 'example@mail.com',
-                        items: [
-                            { name: 'Лавандовое мыло', price: 350, quantity: 2 },
-                            { name: 'Медовое мыло', price: 380, quantity: 1 }
-                        ]
-                    },
-                    {
-                        id: 1002,
-                        date: '2023-06-02',
-                        total: 760,
-                        status: 'В обработке',
-                        email: 'example@mail.com',
-                        items: [
-                            { name: 'Цитрусовый заряд', price: 370, quantity: 1 },
-                            { name: 'Кофейный скраб', price: 390, quantity: 1 }
-                        ]
-                    }
-                ];
-                
-                // Фильтруем заказы по email
-                const filteredOrders = mockOrders.filter(order => order.email === email);
-                resolve(filteredOrders);
-            });
-        }
-
         function displayOrders(orders) {
             const container = document.getElementById('orders-container');
             
@@ -141,7 +105,7 @@
                         <span class="order-status ${order.status === 'Доставлен' ? 'delivered' : ''}">${order.status}</span>
                     </div>
                     <div class="order-meta">
-                        <span class="order-date">Дата: ${order.date}</span>
+                        <span class="order-date">Дата: ${new Date(order.date).toLocaleDateString()}</span>
                         <span class="order-email">Email: ${order.email}</span>
                     </div>
                     <div class="order-items">
@@ -157,108 +121,5 @@
             `).join('');
         }
     </script>
-
-    <style>
-        .orders-section {
-            padding: 40px 0;
-        }
-
-        .order-search {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-        }
-
-        .order-search input {
-            flex: 1;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-
-        .orders-list {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .order-card {
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .order-header h3 {
-            margin: 0;
-        }
-
-        .order-status {
-            background-color: #f0f0f0;
-            color: #666;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .order-status.delivered {
-            background-color: #d4edda;
-            color: #155724;
-        }
-
-        .order-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-
-        .order-items {
-            margin-bottom: 15px;
-        }
-
-        .order-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #eee;
-        }
-
-        .order-total {
-            text-align: right;
-            font-weight: bold;
-            font-size: 18px;
-            padding-top: 10px;
-            border-top: 1px solid #eee;
-        }
-
-        .no-orders {
-            text-align: center;
-            padding: 40px 0;
-            color: #666;
-        }
-
-        @media (max-width: 768px) {
-            .order-search {
-                flex-direction: column;
-            }
-            
-            .order-meta {
-                flex-direction: column;
-                gap: 5px;
-            }
-        }
-    </style>
 </body>
 </html>
