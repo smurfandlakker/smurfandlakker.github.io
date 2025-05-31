@@ -28,29 +28,31 @@
         </div>
     </header>
 
-    <section class="hero">
-        <div class="container">
-            <h1>Мыло ручной работы</h1>
-            <p>Натуральные ингредиенты, уникальный дизайн и забота о вашей коже</p>
-            <a href="products/all.html" class="btn">Смотреть каталог</a>
-        </div>
-    </section>
-
-    <section class="featured-products">
-        <div class="container">
-            <h2>Популярные товары</h2>
-            <div class="products-grid" id="featured-products">
-                <!-- Товары будут загружены через JS -->
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Мыло ручной работы</h1>
+                <p>Натуральные ингредиенты, уникальный дизайн и забота о вашей коже</p>
+                <a href="products/all.html" class="btn">Смотреть каталог</a>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="about">
-        <div class="container">
-            <h2>О нашем мыле</h2>
-            <p>Мы создаем мыло с любовью и заботой о вашей коже. Только натуральные ингредиенты, экологичная упаковка и уникальный дизайн каждого кусочка.</p>
-        </div>
-    </section>
+        <section class="products-section">
+            <div class="container">
+                <h2>Популярные товары</h2>
+                <div class="products-grid" id="featured-products">
+                    <!-- Товары будут загружены через JS -->
+                </div>
+            </div>
+        </section>
+
+        <section class="about">
+            <div class="container">
+                <h2>О нашем мыле</h2>
+                <p>Мы создаем мыло с любовью и заботой о вашей коже. Только натуральные ингредиенты, экологичная упаковка и уникальный дизайн каждого кусочка.</p>
+            </div>
+        </section>
+    </main>
 
     <footer>
         <div class="container">
@@ -63,6 +65,7 @@
                     <h3>Контакты</h3>
                     <p>Email: info@soapfantasy.ru</p>
                     <p>Телефон: +7 953 035 30 94</p>
+                    <p>Адрес: г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
@@ -74,6 +77,9 @@
                     </ul>
                 </div>
             </div>
+            <div class="copyright">
+                <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
+            </div>
         </div>
     </footer>
 
@@ -82,9 +88,48 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Загрузка избранных товаров
-            loadFeaturedProducts();
+            loadProducts().then(products => {
+                const featuredContainer = document.getElementById('featured-products');
+                if (featuredContainer) {
+                    // Выбираем 4 случайных продукта
+                    const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
+                    
+                    featuredContainer.innerHTML = featuredProducts.map(product => `
+                        <div class="product-card" data-id="${product.id}">
+                            <div class="product-image">
+                                <img src="${product.image}" alt="${product.name}">
+                            </div>
+                            <div class="product-info">
+                                <h3 title="${product.name}">${truncateText(product.name, 20)}</h3>
+                                <p title="${product.description}">${truncateText(product.description, 60)}</p>
+                                <div class="product-price">${product.price} ₽</div>
+                                <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    // Добавляем обработчики событий для кнопок "В корзину"
+                    document.querySelectorAll('.add-to-cart').forEach(button => {
+                        button.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            const productId = parseInt(this.getAttribute('data-id'));
+                            addToCart(productId);
+                        });
+                    });
+                }
+            }).catch(error => {
+                console.error('Ошибка при загрузке продуктов:', error);
+            });
+            
             updateCartCount();
         });
+
+        function truncateText(text, maxLength) {
+            if (text.length > maxLength) {
+                return text.substring(0, maxLength) + '...';
+            }
+            return text;
+        }
     </script>
 </body>
 </html>
