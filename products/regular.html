@@ -79,19 +79,70 @@
         </div>
     </footer>
 
-    <script src="../db.js"></script>
     <script src="../script.js"></script>
-    <script type="module">
-        import { loadProducts, renderProducts } from '../script.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const products = await loadProducts('regular');
-                renderProducts(products, '#products-container');
-            } catch (error) {
-                console.error('Ошибка загрузки товаров:', error);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Тестовые данные для обычного мыла
+            const regularProducts = [
+                {
+                    id: 1,
+                    name: "Лавандовое мыло",
+                    description: "Успокаивающее мыло с натуральной лавандой",
+                    price: 350,
+                    image: "https://i.imgur.com/KZJ8zNq.jpg",
+                    badge: "Хит продаж"
+                },
+                {
+                    id: 3,
+                    name: "Медовое мыло",
+                    description: "Питательное мыло с натуральным медом",
+                    price: 380,
+                    image: "https://i.imgur.com/9p3R5vM.jpg"
+                },
+                {
+                    id: 4,
+                    name: "Кофейный скраб",
+                    description: "Очищающее мыло с кофейной гущей",
+                    price: 390,
+                    image: "https://i.imgur.com/2X1Yj5t.jpg"
+                },
+                {
+                    id: 5,
+                    name: "Цитрусовый заряд",
+                    description: "Бодрящее мыло с апельсиновым маслом",
+                    price: 370,
+                    image: "https://i.imgur.com/L4k9m8P.jpg"
+                }
+            ];
+
+            // Рендерим товары
+            const container = document.getElementById('products-container');
+            if (container) {
+                container.innerHTML = regularProducts.map(product => `
+                    <div class="product-card" data-id="${product.id}">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}">
+                            ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                        </div>
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                            <div class="product-price">${product.price} ₽</div>
+                            <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                        </div>
+                    </div>
+                `).join('');
             }
+
+            // Обновляем счетчик корзины
+            updateCartCount();
         });
+
+        function updateCartCount() {
+            document.querySelectorAll('#cart-count').forEach(el => {
+                el.textContent = '0';
+            });
+        }
     </script>
 </body>
 </html>
