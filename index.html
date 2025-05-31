@@ -81,18 +81,65 @@
         </div>
     </footer>
 
-    <script type="module">
-        import { loadProducts, renderProducts } from './script.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const products = await loadProducts();
-                const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
-                renderProducts(featuredProducts, '#featured-products');
-            } catch (error) {
-                console.error('Ошибка загрузки товаров:', error);
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Тестовые данные товаров
+            const products = [
+                {
+                    id: 1,
+                    name: "Лавандовое мыло",
+                    description: "Успокаивающее мыло с натуральной лавандой",
+                    price: 350,
+                    image: "https://i.imgur.com/KZJ8zNq.jpg",
+                    badge: "Хит продаж"
+                },
+                {
+                    id: 2,
+                    name: "Антибактериальное с чайным деревом",
+                    description: "Защита от бактерий с маслом чайного дерева",
+                    price: 420,
+                    image: "https://i.imgur.com/7Q5W6lF.jpg",
+                    badge: "Новинка"
+                },
+                {
+                    id: 3,
+                    name: "Медовое мыло",
+                    description: "Питательное мыло с натуральным медом",
+                    price: 380,
+                    image: "https://i.imgur.com/9p3R5vM.jpg"
+                }
+            ];
+
+            // Рендерим товары
+            const container = document.getElementById('featured-products');
+            if (container) {
+                container.innerHTML = products.map(product => `
+                    <div class="product-card" data-id="${product.id}">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}">
+                            ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                        </div>
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                            <div class="product-price">${product.price} ₽</div>
+                            <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                        </div>
+                    </div>
+                `).join('');
             }
+
+            // Обновляем счетчик корзины
+            updateCartCount();
         });
+
+        function updateCartCount() {
+            // В реальном проекте здесь будет запрос к корзине
+            document.querySelectorAll('#cart-count').forEach(el => {
+                el.textContent = '0';
+            });
+        }
     </script>
 </body>
 </html>
