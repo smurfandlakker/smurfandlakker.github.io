@@ -64,14 +64,6 @@
                         <li><a href="../reviews.html">Отзывы</a></li>
                     </ul>
                 </div>
-                <div class="footer-section">
-                    <h3>Мы в соцсетях</h3>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-vk"></i></a>
-                        <a href="#"><i class="fab fa-telegram"></i></a>
-                    </div>
-                </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
@@ -82,67 +74,11 @@
     <script src="../script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Тестовые данные для обычного мыла
-            const regularProducts = [
-                {
-                    id: 1,
-                    name: "Лавандовое мыло",
-                    description: "Успокаивающее мыло с натуральной лавандой",
-                    price: 350,
-                    image: "https://i.imgur.com/KZJ8zNq.jpg",
-                    badge: "Хит продаж"
-                },
-                {
-                    id: 3,
-                    name: "Медовое мыло",
-                    description: "Питательное мыло с натуральным медом",
-                    price: 380,
-                    image: "https://i.imgur.com/9p3R5vM.jpg"
-                },
-                {
-                    id: 4,
-                    name: "Кофейный скраб",
-                    description: "Очищающее мыло с кофейной гущей",
-                    price: 390,
-                    image: "https://i.imgur.com/2X1Yj5t.jpg"
-                },
-                {
-                    id: 5,
-                    name: "Цитрусовый заряд",
-                    description: "Бодрящее мыло с апельсиновым маслом",
-                    price: 370,
-                    image: "https://i.imgur.com/L4k9m8P.jpg"
-                }
-            ];
-
-            // Рендерим товары
-            const container = document.getElementById('products-container');
-            if (container) {
-                container.innerHTML = regularProducts.map(product => `
-                    <div class="product-card" data-id="${product.id}">
-                        <div class="product-image">
-                            <img src="${product.image}" alt="${product.name}">
-                            ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
-                        </div>
-                        <div class="product-info">
-                            <h3>${product.name}</h3>
-                            <p>${product.description}</p>
-                            <div class="product-price">${product.price} ₽</div>
-                            <button class="add-to-cart" data-id="${product.id}">В корзину</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            // Обновляем счетчик корзины
+            loadProducts('regular').then(products => {
+                renderProducts(products, '#products-container');
+            });
             updateCartCount();
         });
-
-        function updateCartCount() {
-            document.querySelectorAll('#cart-count').forEach(el => {
-                el.textContent = '0';
-            });
-        }
     </script>
 </body>
 </html>
