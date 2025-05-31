@@ -7,8 +7,8 @@ const sampleProducts = [
     id: 1,
     name: "Лавандовое мыло",
     description: "Успокаивающее мыло с натуральной лавандой",
-    fullDescription: "Мыло с натуральным маслом лаванды обладает успокаивающим эффектом. Идеально подходит для вечернего использования. Содержит только натуральные ингредиенты без химических добавок.",
-    features: ["Увлажняет кожу", "Антистресс-эффект", "Гипоаллергенно", "100% натуральный состав"],
+    fullDescription: "Мыло с натуральным маслом лаванды обладает успокаивающим эффектом. Идеально подходит для вечернего использования.",
+    features: ["Увлажняет кожу", "Антистресс-эффект", "Гипоаллергенно"],
     price: 350,
     category: "regular",
     image: "https://i.imgur.com/KZJ8zNq.jpg",
@@ -18,52 +18,12 @@ const sampleProducts = [
     id: 2,
     name: "Антибактериальное с чайным деревом",
     description: "Защита от бактерий с маслом чайного дерева",
-    fullDescription: "Мыло с маслом чайного дерева эффективно борется с бактериями и воспалениями. Рекомендуется для проблемной кожи. Обладает выраженным антисептическим действием.",
-    features: ["Антибактериальный эффект", "Помогает при воспалениях", "Подходит для жирной кожи", "Натуральные эфирные масла"],
+    fullDescription: "Мыло с маслом чайного дерева эффективно борется с бактериями и воспалениями.",
+    features: ["Антибактериальный эффект", "Помогает при воспалениях"],
     price: 420,
     category: "antibacterial",
     image: "https://i.imgur.com/7Q5W6lF.jpg",
     badge: "Новинка"
-  },
-  {
-    id: 3,
-    name: "Медовое мыло с прополисом",
-    description: "Питательное мыло с натуральным медом",
-    fullDescription: "Мыло с натуральным медом и прополисом обладает питательными и антисептическими свойствами. Отлично подходит для сухой и чувствительной кожи.",
-    features: ["Питает кожу", "Заживляет мелкие повреждения", "Натуральный состав", "Антисептические свойства"],
-    price: 380,
-    category: "regular",
-    image: "https://i.imgur.com/9p3R5vM.jpg"
-  },
-  {
-    id: 4,
-    name: "Кофейный скраб",
-    description: "Очищающее мыло с кофейной гущей",
-    fullDescription: "Мыло с натуральной кофейной гущей мягко отшелушивает кожу, улучшает кровообращение и борется с целлюлитом. Идеально для утреннего душа.",
-    features: ["Эффективный скраб", "Улучшает кровообращение", "Борется с целлюлитом", "Натуральные компоненты"],
-    price: 390,
-    category: "regular",
-    image: "https://i.imgur.com/2X1Yj5t.jpg"
-  },
-  {
-    id: 5,
-    name: "Цитрусовый заряд",
-    description: "Бодрящее мыло с цитрусовыми маслами",
-    fullDescription: "Мыло с натуральными цитрусовыми маслами дарит заряд бодрости на весь день. Освежает и тонизирует кожу, поднимает настроение.",
-    features: ["Тонизирует кожу", "Освежающий аромат", "Подходит для утреннего использования", "Энергетический заряд"],
-    price: 370,
-    category: "regular",
-    image: "https://i.imgur.com/L4k9m8P.jpg"
-  },
-  {
-    id: 6,
-    name: "Антибактериальное с эвкалиптом",
-    description: "Освежающее мыло с эвкалиптовым маслом",
-    fullDescription: "Мыло с эвкалиптовым маслом обладает сильным антибактериальным эффектом, освежает и очищает кожу. Особенно рекомендуется в сезон простуд.",
-    features: ["Антибактериальный эффект", "Освежающее действие", "Помогает при простудах", "Натуральные компоненты"],
-    price: 400,
-    category: "antibacterial",
-    image: "https://i.imgur.com/VvJ7h3Q.jpg"
   }
 ];
 
@@ -72,24 +32,13 @@ function initDB() {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = (event) => {
-      console.error('Ошибка при открытии DB:', event.target.error);
+      console.error('Database error:', event.target.error);
       reject(event.target.error);
     };
 
     request.onsuccess = (event) => {
       const db = event.target.result;
-      // Проверяем наличие товаров
-      const checkProducts = () => {
-        const tx = db.transaction(['products'], 'readonly');
-        const store = tx.objectStore('products');
-        store.count().onsuccess = (e) => {
-          if (e.target.result === 0) {
-            addSampleProducts(db);
-          }
-        };
-      };
-      checkProducts();
-      resolve(db);
+      checkProducts(db).then(() => resolve(db));
     };
 
     request.onupgradeneeded = (event) => {
@@ -103,24 +52,33 @@ function initDB() {
       if (!db.objectStoreNames.contains('cart')) {
         db.createObjectStore('cart', { keyPath: 'id' });
       }
-      
-      if (!db.objectStoreNames.contains('orders')) {
-        const store = db.createObjectStore('orders', { keyPath: 'id' });
-        store.createIndex('email', 'email', { unique: false });
+    };
+  });
+}
+
+function checkProducts(db) {
+  return new Promise((resolve) => {
+    const tx = db.transaction('products', 'readonly');
+    const store = tx.objectStore('products');
+    store.count().onsuccess = (e) => {
+      if (e.target.result === 0) {
+        addSampleProducts(db).then(resolve);
+      } else {
+        resolve();
       }
     };
   });
 }
 
 function addSampleProducts(db) {
-  const tx = db.transaction(['products'], 'readwrite');
-  const store = tx.objectStore('products');
-  
-  sampleProducts.forEach(product => {
-    store.add(product);
-  });
-  
   return new Promise((resolve) => {
+    const tx = db.transaction('products', 'readwrite');
+    const store = tx.objectStore('products');
+    
+    sampleProducts.forEach(product => {
+      store.add(product);
+    });
+    
     tx.oncomplete = () => resolve();
   });
 }
@@ -128,7 +86,7 @@ function addSampleProducts(db) {
 export function loadProducts(category = null) {
   return new Promise((resolve, reject) => {
     initDB().then(db => {
-      const tx = db.transaction(['products'], 'readonly');
+      const tx = db.transaction('products', 'readonly');
       const store = tx.objectStore('products');
       let request;
 
@@ -139,7 +97,7 @@ export function loadProducts(category = null) {
         request = store.getAll();
       }
 
-      request.onsuccess = () => resolve(request.result || sampleProducts);
+      request.onsuccess = () => resolve(request.result || []);
       request.onerror = (event) => reject(event.target.error);
     }).catch(reject);
   });
