@@ -19,7 +19,6 @@
                     <li><a href="all.html">Все продукты</a></li>
                     <li><a href="../cart.html">Корзина</a></li>
                     <li><a href="../reviews.html">Отзывы</a></li>
-                    <li><a href="../orders.html">Мои заказы</a></li>
                 </ul>
             </nav>
             <div class="cart-icon">
@@ -28,15 +27,9 @@
         </div>
     </header>
 
-    <section class="category-description">
-        <div class="container">
-            <h2>Антибактериальное мыло</h2>
-            <p>Специально разработанное мыло с антибактериальными компонентами природного происхождения. Эффективно борется с бактериями, сохраняя при этом нежность вашей кожи. Рекомендуется для использования в общественных местах и медицинских учреждениях.</p>
-        </div>
-    </section>
-
     <section class="products-section">
         <div class="container">
+            <h2>Антибактериальное мыло</h2>
             <div class="products-grid" id="products-container">
                 <!-- Товары будут загружены через JS -->
             </div>
@@ -53,7 +46,7 @@
                 <div class="footer-section">
                     <h3>Контакты</h3>
                     <p>Email: info@soapfantasy.ru</p>
-                    <p>Телефон: +7 953 035 30 94</p>
+                    <p>Телефон: +7 (123) 456-78-90</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
@@ -79,22 +72,17 @@
                         <div class="product-card">
                             <div class="product-image">
                                 <img src="${product.image}" alt="${product.name}">
-                                ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
                             </div>
                             <div class="product-info">
                                 <h3>${product.name}</h3>
-                                <div class="product-description">
-                                    <p>${product.fullDescription || product.description}</p>
-                                    <ul class="product-features">
-                                        ${product.features ? product.features.map(f => `<li>✔ ${f}</li>`).join('') : ''}
-                                    </ul>
-                                </div>
+                                <p>${product.description}</p>
                                 <div class="product-price">${product.price} ₽</div>
                                 <button class="add-to-cart" data-id="${product.id}">В корзину</button>
                             </div>
                         </div>
                     `).join('');
 
+                    // Добавляем обработчики событий для кнопок "В корзину"
                     document.querySelectorAll('.add-to-cart').forEach(button => {
                         button.addEventListener('click', function() {
                             const productId = parseInt(this.getAttribute('data-id'));
@@ -102,7 +90,10 @@
                         });
                     });
                 }
+            }).catch(error => {
+                console.error('Ошибка при загрузке продуктов:', error);
             });
+
             updateCartCount();
         });
     </script>
