@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Админ-панель | Мыльная фантазия</title>
     <link rel="stylesheet" href="style.css">
-<script src="script.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -19,42 +20,56 @@
         </div>
     </header>
 
-    <section class="admin-section">
-        <div class="container">
-            <h2>Добавить новый товар</h2>
-            <form id="add-product-form">
-                <div class="form-group">
-                    <label for="product-name">Название:</label>
-                    <input type="text" id="product-name" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-description">Описание:</label>
-                    <textarea id="product-description" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="product-price">Цена (₽):</label>
-                    <input type="number" id="product-price" required>
-                </div>
-                <div class="form-group">
-                    <label for="product-category">Категория:</label>
-                    <select id="product-category" required>
-                        <option value="regular">Обычное мыло</option>
-                        <option value="antibacterial">Антибактериальное мыло</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="product-image">URL изображения:</label>
-                    <input type="url" id="product-image" required>
-                </div>
-                <button type="submit" class="btn">Добавить товар</button>
-            </form>
+    <main>
+        <section class="admin-section">
+            <div class="container">
+                <h2>Добавить новый товар</h2>
+                <form id="add-product-form">
+                    <div class="form-group">
+                        <label for="product-name">Название:</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-description">Описание:</label>
+                        <textarea id="product-description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-full-description">Полное описание:</label>
+                        <textarea id="product-full-description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-features">Особенности (через запятую):</label>
+                        <textarea id="product-features" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-price">Цена (₽):</label>
+                        <input type="number" id="product-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-category">Категория:</label>
+                        <select id="product-category" required>
+                            <option value="regular">Обычное мыло</option>
+                            <option value="antibacterial">Антибактериальное мыло</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-image">URL изображения:</label>
+                        <input type="url" id="product-image" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-badge">Бейдж (необязательно):</label>
+                        <input type="text" id="product-badge">
+                    </div>
+                    <button type="submit" class="btn">Добавить товар</button>
+                </form>
 
-            <h2>Список товаров</h2>
-            <div class="products-list" id="admin-products-list">
-                <!-- Товары будут загружены здесь -->
+                <h2>Список товаров</h2>
+                <div class="products-list" id="admin-products-list">
+                    <!-- Товары будут загружены здесь -->
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
     <script src="db.js"></script>
     <script src="script.js"></script>
@@ -69,13 +84,21 @@
             document.getElementById('add-product-form').addEventListener('submit', function(e) {
                 e.preventDefault();
                 
+                const features = document.getElementById('product-features').value
+                    .split(',')
+                    .map(f => f.trim())
+                    .filter(f => f.length > 0);
+                
                 const newProduct = {
                     id: Date.now(), // Используем timestamp как ID
                     name: document.getElementById('product-name').value,
                     description: document.getElementById('product-description').value,
+                    fullDescription: document.getElementById('product-full-description').value,
+                    features: features,
                     price: parseInt(document.getElementById('product-price').value),
                     category: document.getElementById('product-category').value,
-                    image: document.getElementById('product-image').value
+                    image: document.getElementById('product-image').value,
+                    badge: document.getElementById('product-badge').value || undefined
                 };
 
                 addProductToDB(newProduct).then(() => {
@@ -125,6 +148,13 @@
                             <div class="admin-product-meta">
                                 <span>Цена: ${product.price} ₽</span>
                                 <span>Категория: ${product.category === 'regular' ? 'Обычное' : 'Антибактериальное'}</span>
+                                ${product.badge ? `<span class="product-badge">${product.badge}</span>` : ''}
+                            </div>
+                            <div class="product-features">
+                                <h4>Особенности:</h4>
+                                <ul>
+                                    ${product.features.map(f => `<li>${f}</li>`).join('')}
+                                </ul>
                             </div>
                         </div>
                         <button class="delete-product" data-id="${product.id}">Удалить</button>
@@ -215,7 +245,7 @@
 
         .admin-product-card {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             padding: 20px;
             margin-bottom: 15px;
             background-color: var(--card-bg);
@@ -239,9 +269,45 @@
         .admin-product-meta {
             display: flex;
             gap: 15px;
-            margin-top: 10px;
+            margin: 10px 0;
             font-size: 14px;
             color: #666;
+            flex-wrap: wrap;
+        }
+
+        .product-badge {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .product-features {
+            margin-top: 10px;
+        }
+
+        .product-features h4 {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .product-features ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .product-features li {
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .product-features li:before {
+            content: "•";
+            color: var(--accent-color);
+            position: absolute;
+            left: -15px;
         }
 
         .delete-product {
@@ -261,7 +327,6 @@
         @media (max-width: 768px) {
             .admin-product-card {
                 flex-direction: column;
-                align-items: flex-start;
             }
 
             .admin-product-meta {
