@@ -285,3 +285,65 @@ notificationStyles.textContent = `
 }
 `;
 document.head.appendChild(notificationStyles);
+// Функция для сокращения текста
+function truncateText(text, maxLength) {
+    if (!text) return '';
+    if (text.length > maxLength) {
+        return text.substring(0, maxLength) + '...';
+    }
+    return text;
+}
+
+// Обработка кликов по карточкам товаров
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка кликов по карточкам товаров
+    document.addEventListener('click', function(e) {
+        const productCard = e.target.closest('.product-card');
+        if (productCard && !e.target.classList.contains('add-to-cart')) {
+            const productId = productCard.dataset.id;
+            if (productId) {
+                window.location.href = `product.html?id=${productId}`;
+            }
+        }
+    });
+    
+    // Обновляем функцию renderProducts для всех страниц
+    function renderProducts(products, containerSelector) {
+        const container = document.querySelector(containerSelector);
+        if (container) {
+            container.innerHTML = products.map(product => `
+                <div class="product-card" data-id="${product.id}">
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}">
+                        ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                    </div>
+                    <div class="product-info">
+                        <h3 title="${product.name}">${truncateText(product.name, 20)}</h3>
+                        <p title="${product.description}">${truncateText(product.description, 60)}</p>
+                        <div class="product-price">${product.price} ₽</div>
+                        <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+    }
+    
+    // Переопределяем функцию loadFeaturedProducts
+    window.loadFeaturedProducts = function() {
+        loadProducts().then(products => {
+            const featuredContainer = document.getElementById('featured-products');
+            if (featuredContainer) {
+                const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
+                renderProducts(featuredProducts, '#featured-products');
+                
+                document.querySelectorAll('.add-to-cart').forEach(button => {
+                    button.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const productId = parseInt(this.getAttribute('data-id'));
+                        addToCart(productId);
+                    });
+                });
+            }
+        });
+    };
+});
