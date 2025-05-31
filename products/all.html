@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Все продукты | Мыльная фантазия</title>
     <link rel="stylesheet" href="../style.css">
-<script src="../script.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -79,36 +78,118 @@
         </div>
     </footer>
 
-    <script src="../db.js"></script>
     <script src="../script.js"></script>
-    <script type="module">
-        import { loadProducts, renderProducts } from '../script.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Загрузка всех товаров
-            const loadAndRender = async (category = null) => {
-                try {
-                    const products = await loadProducts(category);
-                    renderProducts(products, '#products-container');
-                } catch (error) {
-                    console.error('Ошибка загрузки товаров:', error);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Тестовые данные товаров
+            const allProducts = [
+                {
+                    id: 1,
+                    name: "Лавандовое мыло",
+                    description: "Успокаивающее мыло с натуральной лавандой",
+                    price: 350,
+                    category: "regular",
+                    image: "https://i.imgur.com/KZJ8zNq.jpg",
+                    badge: "Хит продаж"
+                },
+                {
+                    id: 2,
+                    name: "Антибактериальное с чайным деревом",
+                    description: "Защита от бактерий с маслом чайного дерева",
+                    price: 420,
+                    category: "antibacterial",
+                    image: "https://i.imgur.com/7Q5W6lF.jpg",
+                    badge: "Новинка"
+                },
+                {
+                    id: 3,
+                    name: "Медовое мыло",
+                    description: "Питательное мыло с натуральным медом",
+                    price: 380,
+                    category: "regular",
+                    image: "https://i.imgur.com/9p3R5vM.jpg"
+                },
+                {
+                    id: 4,
+                    name: "Кофейный скраб",
+                    description: "Очищающее мыло с кофейной гущей",
+                    price: 390,
+                    category: "regular",
+                    image: "https://i.imgur.com/2X1Yj5t.jpg"
+                },
+                {
+                    id: 5,
+                    name: "Цитрусовый заряд",
+                    description: "Бодрящее мыло с апельсиновым маслом",
+                    price: 370,
+                    category: "regular",
+                    image: "https://i.imgur.com/L4k9m8P.jpg"
+                },
+                {
+                    id: 6,
+                    name: "Антибактериальное с эвкалиптом",
+                    description: "Освежающее мыло с эвкалиптовым маслом",
+                    price: 400,
+                    category: "antibacterial",
+                    image: "https://i.imgur.com/VvJ7h3Q.jpg"
                 }
-            };
+            ];
+
+            // Функция отображения товаров
+            function renderProducts(products) {
+                const container = document.getElementById('products-container');
+                if (container) {
+                    container.innerHTML = products.map(product => `
+                        <div class="product-card" data-id="${product.id}">
+                            <div class="product-image">
+                                <img src="${product.image}" alt="${product.name}">
+                                ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                            </div>
+                            <div class="product-info">
+                                <h3>${product.name}</h3>
+                                <p>${product.description}</p>
+                                <div class="product-price">${product.price} ₽</div>
+                                <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
 
             // Первоначальная загрузка
-            await loadAndRender();
+            renderProducts(allProducts);
 
-            // Обработка фильтров
+            // Фильтрация товаров
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    // Удаляем активный класс у всех кнопок
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    
+                    // Добавляем активный класс текущей кнопке
                     this.classList.add('active');
                     
-                    const category = this.dataset.category === 'all' ? null : this.dataset.category;
-                    loadAndRender(category);
+                    const category = this.dataset.category;
+                    
+                    // Фильтруем товары
+                    const filteredProducts = category === 'all' 
+                        ? allProducts 
+                        : allProducts.filter(p => p.category === category);
+                    
+                    renderProducts(filteredProducts);
                 });
             });
+
+            // Обновляем счетчик корзины
+            updateCartCount();
         });
+
+        function updateCartCount() {
+            document.querySelectorAll('#cart-count').forEach(el => {
+                el.textContent = '0';
+            });
+        }
     </script>
 </body>
 </html>
