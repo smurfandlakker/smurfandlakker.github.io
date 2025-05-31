@@ -20,11 +20,10 @@
                     <li><a href="products/all.html">Все продукты</a></li>
                     <li><a href="cart.html">Корзина</a></li>
                     <li><a href="reviews.html">Отзывы</a></li>
-                    <li><a href="orders.html">Мои заказы</a></li>
                 </ul>
             </nav>
             <div class="cart-icon">
-                <a href="cart.html">🛒 <span id="cart-count">0</span></a>
+                <a href="cart.html"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a>
             </div>
         </div>
     </header>
@@ -32,9 +31,9 @@
     <main>
         <section class="hero">
             <div class="container">
-                <h1>Мыло ручной работы</h1>
-                <p>Натуральные ингредиенты, уникальный дизайн и забота о вашей коже</p>
-                <a href="products/all.html" class="btn">Смотреть каталог</a>
+                <h1>Натуральное мыло ручной работы</h1>
+                <p>Заботимся о вашей коже с любовью и натуральными ингредиентами</p>
+                <a href="products/all.html" class="btn">В каталог</a>
             </div>
         </section>
 
@@ -42,7 +41,10 @@
             <div class="container">
                 <h2>Популярные товары</h2>
                 <div class="products-grid" id="featured-products">
-                    <!-- Товары будут загружены через JS -->
+                    <!-- Товары загружаются через JS -->
+                </div>
+                <div class="text-center" style="margin-top: 30px;">
+                    <a href="products/all.html" class="btn">Смотреть все товары</a>
                 </div>
             </div>
         </section>
@@ -53,9 +55,9 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Контакты</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, 15</p>
+                    <p><i class="fas fa-phone"></i> +7 (123) 456-78-90</p>
                     <p><i class="fas fa-envelope"></i> info@soapfantasy.ru</p>
-                    <p><i class="fas fa-phone"></i> +7 953 035 30 94</p>
-                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
@@ -65,6 +67,10 @@
                         <li><a href="cart.html">Корзина</a></li>
                         <li><a href="reviews.html">Отзывы</a></li>
                     </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>О нас</h3>
+                    <p>Мы создаем натуральное мыло ручной работы с 2010 года. Используем только качественные ингредиенты.</p>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -78,9 +84,36 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             loadProducts().then(products => {
-                // Показываем 3 случайных товара
+                // Показываем 4 случайных товара
                 const shuffled = [...products].sort(() => 0.5 - Math.random());
-                renderProducts(shuffled.slice(0, 3), '#featured-products');
+                const featuredProducts = shuffled.slice(0, 4);
+                
+                const container = document.getElementById('featured-products');
+                container.innerHTML = featuredProducts.map(product => `
+                    <div class="product-card" data-id="${product.id}">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}">
+                            ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                        </div>
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                            <div class="product-price">${product.price} ₽</div>
+                            <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Инициализируем обработчики для кнопок "В корзину"
+                document.querySelectorAll('.add-to-cart').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = parseInt(this.getAttribute('data-id'));
+                        addToCart(productId).then(() => {
+                            updateCartCount();
+                            showNotification('Товар добавлен в корзину');
+                        });
+                    });
+                });
             });
             
             updateCartCount();
