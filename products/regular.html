@@ -6,6 +6,7 @@
     <title>Обычное мыло | Мыльная фантазия</title>
     <link rel="stylesheet" href="../style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -28,82 +29,68 @@
         </div>
     </header>
 
-    <section class="category-description">
-        <div class="container">
-            <h2>Обычное рукодельное мыло</h2>
-            <p>Наше обычное мыло создано для ежедневного ухода за кожей. Оно мягко очищает, не нарушая естественный баланс, и содержит только натуральные компоненты. Идеально подходит для всех типов кожи, включая чувствительную.</p>
-        </div>
-    </section>
-
-    <section class="products-section">
-        <div class="container">
-            <div class="products-grid" id="products-container">
-                <!-- Товары будут загружены через JS -->
+    <main>
+        <section class="category-description">
+            <div class="container">
+                <h2>Обычное рукодельное мыло</h2>
+                <p>Наше обычное мыло создано для ежедневного ухода за кожей. Оно мягко очищает, не нарушая естественный баланс, и содержит только натуральные компоненты. Идеально подходит для всех типов кожи, включая чувствительную.</p>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <footer>
+        <section class="products-section">
+            <div class="container">
+                <div class="products-grid" id="products-container">
+                    <!-- Товары будут загружены через JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Мыльная фантазия</h3>
-                    <p>Рукодельное мыло ручной работы</p>
-                </div>
-                <div class="footer-section">
                     <h3>Контакты</h3>
-                    <p>Email: info@soapfantasy.ru</p>
-                    <p>Телефон: +7 953 035 30 94</p>
+                    <p><i class="fas fa-envelope"></i> info@soapfantasy.ru</p>
+                    <p><i class="fas fa-phone"></i> +7 953 035 30 94</p>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
                     <ul>
                         <li><a href="../index.html">Главная</a></li>
-                        <li><a href="all.html">Продукты</a></li>
+                        <li><a href="all.html">Каталог</a></li>
                         <li><a href="../cart.html">Корзина</a></li>
                         <li><a href="../reviews.html">Отзывы</a></li>
                     </ul>
                 </div>
+                <div class="footer-section">
+                    <h3>Мы в соцсетях</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-vk"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
     <script src="../db.js"></script>
     <script src="../script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProducts('regular').then(products => {
-                const container = document.getElementById('products-container');
-                if (container) {
-                    container.innerHTML = products.map(product => `
-                        <div class="product-card">
-                            <div class="product-image">
-                                <img src="${product.image}" alt="${product.name}">
-                                ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
-                            </div>
-                            <div class="product-info">
-                                <h3>${product.name}</h3>
-                                <div class="product-description">
-                                    <p>${product.fullDescription || product.description}</p>
-                                    <ul class="product-features">
-                                        ${product.features ? product.features.map(f => `<li>✔ ${f}</li>`).join('') : ''}
-                                    </ul>
-                                </div>
-                                <div class="product-price">${product.price} ₽</div>
-                                <button class="add-to-cart" data-id="${product.id}">В корзину</button>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    document.querySelectorAll('.add-to-cart').forEach(button => {
-                        button.addEventListener('click', function() {
-                            const productId = parseInt(this.getAttribute('data-id'));
-                            addToCart(productId);
-                        });
-                    });
-                }
-            });
-            updateCartCount();
+    <script type="module">
+        import { loadProducts, renderProducts } from '../script.js';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const products = await loadProducts('regular');
+                renderProducts(products, '#products-container');
+            } catch (error) {
+                console.error('Ошибка загрузки товаров:', error);
+            }
         });
     </script>
 </body>
