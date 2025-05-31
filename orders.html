@@ -1,0 +1,144 @@
+!DOCTYPE html
+html lang=ru
+head
+    meta charset=UTF-8
+    meta name=viewport content=width=device-width, initial-scale=1.0
+    titleМои заказы  Мыльная фантазияtitle
+    link rel=stylesheet href=style.css
+    link href=httpsfonts.googleapis.comcss2family=Montserratwght@400;500;600&family=Playfair+Displaywght@700&display=swap rel=stylesheet
+head
+body
+    header
+        div class=container
+            div class=logoМыльная фантазияdiv
+            nav
+                ul
+                    lia href=index.htmlГлавнаяali
+                    lia href=productsregular.htmlОбычное мылоali
+                    lia href=productsantibacterial.htmlАнтибактериальноеali
+                    lia href=productsall.htmlВсе продуктыali
+                    lia href=cart.htmlКорзинаali
+                    lia href=reviews.htmlОтзывыali
+                    lia href=orders.html class=activeМои заказыali
+                ul
+            nav
+            div class=cart-icon
+                a href=cart.html🛒 span id=cart-count0spana
+            div
+        div
+    header
+
+    section class=orders-section
+        div class=container
+            h2Мои заказыh2
+            div class=order-search
+                input type=email id=order-email placeholder=Введите ваш email
+                button id=search-orders class=btnНайти заказыbutton
+            div
+            div class=orders-list id=orders-container
+                !-- Заказы будут загружены здесь --
+                p class=no-ordersВведите ваш email для поиска заказовp
+            div
+        div
+    section
+
+    footer
+        div class=container
+            div class=footer-content
+                div class=footer-section
+                    h3Мыльная фантазияh3
+                    pРукодельное мыло ручной работыp
+                div
+                div class=footer-section
+                    h3Контактыh3
+                    pEmail info@soapfantasy.rup
+                    pТелефон +7 953 035 30 94p
+                div
+                div class=footer-section
+                    h3Менюh3
+                    ul
+                        lia href=index.htmlГлавнаяali
+                        lia href=productsall.htmlПродуктыali
+                        lia href=cart.htmlКорзинаali
+                        lia href=reviews.htmlОтзывыali
+                    ul
+                div
+            div
+        div
+    footer
+
+    script src=db.jsscript
+    script src=script.jsscript
+    script
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            
+            document.getElementById('search-orders').addEventListener('click', function() {
+                const email = document.getElementById('order-email').value.trim();
+                if (email) {
+                    searchOrders(email);
+                } else {
+                    alert('Пожалуйста, введите ваш email');
+                }
+            });
+        });
+
+        function searchOrders(email) {
+             В реальной реализации здесь будет запрос к базе данных
+             Для примера используем mock-данные
+            const mockOrders = [
+                {
+                    id 1001,
+                    date '2023-05-15',
+                    total 1250,
+                    status 'Доставлен',
+                    items [
+                        { name 'Лавандовое мыло', price 350, quantity 2 },
+                        { name 'Медовое мыло', price 380, quantity 1 }
+                    ]
+                },
+                {
+                    id 1002,
+                    date '2023-06-02',
+                    total 760,
+                    status 'В обработке',
+                    items [
+                        { name 'Цитрусовый заряд', price 370, quantity 1 },
+                        { name 'Кофейный скраб', price 390, quantity 1 }
+                    ]
+                }
+            ];
+
+            displayOrders(mockOrders);
+        }
+
+        function displayOrders(orders) {
+            const container = document.getElementById('orders-container');
+            
+            if (orders.length === 0) {
+                container.innerHTML = 'p class=no-ordersЗаказы не найденыp';
+                return;
+            }
+
+            container.innerHTML = orders.map(order = `
+                div class=order-card
+                    div class=order-header
+                        h3Заказ #${order.id}h3
+                        span class=order-status ${order.status === 'Доставлен'  'delivered'  ''}${order.status}span
+                    div
+                    div class=order-dateДата ${order.date}div
+                    div class=order-items
+                        ${order.items.map(item = `
+                            div class=order-item
+                                span${item.name}span
+                                span${item.quantity} × ${item.price} ₽span
+                            div
+                        `).join('')}
+                    div
+                    div class=order-totalИтого ${order.total} ₽div
+                div
+            `).join('');
+        }
+    script
+body
+html
