@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Корзина | Мыльная фантазия</title>
     <link rel="stylesheet" href="style.css">
-<script src="script.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -29,67 +29,68 @@
         </div>
     </header>
 
-    <section class="cart-section">
-        <div class="container">
-            <h2>Ваша корзина</h2>
-            <div id="cart-items">
-                <!-- Товары в корзине будут загружены через JS -->
-                <p class="empty-cart-message">Ваша корзина пуста</p>
+    <main>
+        <section class="cart-section">
+            <div class="container">
+                <h2>Ваша корзина</h2>
+                <div id="cart-items">
+                    <p class="empty-cart-message">Ваша корзина пуста</p>
+                </div>
+                <div class="cart-total" id="cart-total" style="display: none;">
+                    <h3>Итого: <span id="total-amount">0</span> ₽</h3>
+                    <button id="checkout-btn" class="btn">Оформить заказ</button>
+                </div>
             </div>
-            <div class="cart-total" id="cart-total" style="display: none;">
-                <h3>Итого: <span id="total-amount">0</span> ₽</h3>
-                <button id="checkout-btn" class="btn">Оформить заказ</button>
+        </section>
+
+        <div id="checkout-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Оформление заказа</h2>
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label for="name">Имя:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Телефон:</label>
+                        <input type="tel" id="phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Адрес доставки:</label>
+                        <textarea id="address" name="address" required></textarea>
+                    </div>
+                    <button type="submit" class="btn">Подтвердить заказ</button>
+                </form>
             </div>
         </div>
-    </section>
+    </main>
 
-    <div id="checkout-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>Оформление заказа</h2>
-            <form id="checkout-form">
-                <div class="form-group">
-                    <label for="name">Имя:</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Телефон:</label>
-                    <input type="tel" id="phone" name="phone" required>
-                </div>
-                <div class="form-group">
-                    <label for="address">Адрес:</label>
-                    <textarea id="address" name="address" required></textarea>
-                </div>
-                <button type="submit" class="btn">Подтвердить заказ</button>
-            </form>
-        </div>
-    </div>
-
-    <footer>
+    <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Мыльная фантазия</h3>
-                    <p>Рукодельное мыло ручной работы</p>
-                </div>
-                <div class="footer-section">
                     <h3>Контакты</h3>
-                    <p>Email: info@soapfantasy.ru</p>
-                    <p>Телефон: +7 953 035 30 94</p>
+                    <p><i class="fas fa-envelope"></i> info@soapfantasy.ru</p>
+                    <p><i class="fas fa-phone"></i> +7 953 035 30 94</p>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
                     <ul>
                         <li><a href="index.html">Главная</a></li>
-                        <li><a href="products/all.html">Продукты</a></li>
+                        <li><a href="products/all.html">Каталог</a></li>
                         <li><a href="cart.html">Корзина</a></li>
                         <li><a href="reviews.html">Отзывы</a></li>
                     </ul>
                 </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
             </div>
         </div>
     </footer>
@@ -119,8 +120,7 @@
                     name: document.getElementById('name').value,
                     email: document.getElementById('email').value,
                     phone: document.getElementById('phone').value,
-                    address: document.getElementById('address').value,
-                    items: []
+                    address: document.getElementById('address').value
                 };
 
                 // Получаем товары из корзины
@@ -213,179 +213,5 @@
             });
         }
     </script>
-
-    <style>
-        .cart-section {
-            min-height: 60vh;
-        }
-
-        .cart-item {
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            gap: 20px;
-        }
-
-        .cart-item-image {
-            width: 80px;
-            height: 80px;
-            overflow: hidden;
-            border-radius: 5px;
-        }
-
-        .cart-item-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .cart-item-info {
-            flex: 1;
-        }
-
-        .cart-item-info h3 {
-            margin-bottom: 5px;
-        }
-
-        .cart-item-quantity {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .quantity-btn {
-            width: 30px;
-            height: 30px;
-            border: none;
-            background-color: var(--primary-color);
-            color: white;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .quantity-btn:hover {
-            background-color: var(--secondary-color);
-        }
-
-        .cart-item-total {
-            font-weight: 600;
-            min-width: 100px;
-            text-align: right;
-        }
-
-        .remove-item {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #999;
-            padding: 5px;
-        }
-
-        .remove-item:hover {
-            color: var(--accent-color);
-        }
-
-        .cart-total {
-            margin-top: 30px;
-            text-align: right;
-            padding: 20px;
-            background-color: var(--card-bg);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .cart-total h3 {
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-
-        .empty-cart-message {
-            text-align: center;
-            font-size: 18px;
-            color: #666;
-            padding: 50px 0;
-        }
-
-        /* Стили для модального окна */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: var(--card-bg);
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            position: relative;
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 28px;
-            cursor: pointer;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            height: 100px;
-            resize: vertical;
-        }
-
-        @media (max-width: 768px) {
-            .cart-item {
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .cart-item-info {
-                flex: 0 0 100%;
-            }
-
-            .cart-item-total {
-                text-align: left;
-                min-width: auto;
-                flex: 1;
-            }
-
-            .remove-item {
-                flex: 0 0 auto;
-            }
-        }
-    </style>
 </body>
 </html>
