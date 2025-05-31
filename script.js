@@ -1,5 +1,5 @@
 // script.js
-import { loadProducts, addToCart, getCartItems } from './db.js';
+import { loadProducts, addToCart, getCartItems, removeFromCart, updateCartItemQuantity, placeOrder, getOrdersByEmail } from './db.js';
 
 // Инициализация при загрузке
 document.addEventListener('DOMContentLoaded', function() {
@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Функция для обновления счетчика корзины
-function updateCartCount() {
+export function updateCartCount() {
   getCartItems().then(items => {
     const count = items.reduce((sum, item) => sum + item.quantity, 0);
     document.querySelectorAll('#cart-count').forEach(el => {
@@ -25,7 +25,7 @@ function initializeProductCards() {
     if (productCard && !e.target.classList.contains('add-to-cart')) {
       const productId = productCard.dataset.id;
       if (productId) {
-        window.location.href = `product.html?id=${productId}`;
+        window.location.href = `products/product.html?id=${productId}`;
       }
     }
 
@@ -42,7 +42,7 @@ function initializeProductCards() {
 }
 
 // Функция для отображения уведомлений
-function showNotification(message) {
+export function showNotification(message) {
   const notification = document.createElement('div');
   notification.className = 'notification';
   notification.textContent = message;
