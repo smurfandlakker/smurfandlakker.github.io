@@ -262,3 +262,53 @@ export function getOrdersByEmail(email) {
 document.addEventListener('DOMContentLoaded', () => {
   initDB().catch(console.error);
 });
+// Добавить в db.js после других функций
+
+function addReview(review) {
+    return new Promise((resolve, reject) => {
+        initDB().then(db => {
+            const tx = db.transaction(['reviews'], 'readwrite');
+            const store = tx.objectStore('reviews');
+            const request = store.add(review);
+
+            request.onsuccess = () => resolve();
+            request.onerror = (event) => reject(event.target.error);
+        }).catch(reject);
+    });
+}
+
+function getAllReviews() {
+    return new Promise((resolve, reject) => {
+        initDB().then(db => {
+            const tx = db.transaction(['reviews'], 'readonly');
+            const store = tx.objectStore('reviews');
+            const request = store.getAll();
+
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = (event) => reject(event.target.error);
+        }).catch(reject);
+    });
+}
+
+// Обновить функцию initDB() - добавить хранилище для отзывов
+request.onupgradeneeded = (event) => {
+    const db = event.target.result;
+    
+    if (!db.objectStoreNames.contains('products')) {
+        const store = db.createObjectStore('products', { keyPath: 'id' });
+        store.createIndex('category', 'category', { unique: false });
+    }
+    
+    if (!db.objectStoreNames.contains('cart')) {
+        db.createObjectStore('cart', { keyPath: 'id' });
+    }
+    
+    if (!db.objectStoreNames.contains('orders')) {
+        const store = db.createObjectStore('orders', { keyPath: 'id' });
+        store.createIndex('email', 'email', { unique: false });
+    }
+    
+    if (!db.objectStoreNames.contains('reviews')) {
+        db.createObjectStore('reviews', { autoIncrement: true });
+    }
+};
