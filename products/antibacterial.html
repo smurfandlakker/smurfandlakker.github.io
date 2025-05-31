@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Антибактериальное мыло | Мыльная фантазия</title>
     <link rel="stylesheet" href="../style.css">
-<script src="../script.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
@@ -80,19 +79,56 @@
         </div>
     </footer>
 
-    <script src="../db.js"></script>
     <script src="../script.js"></script>
-    <script type="module">
-        import { loadProducts, renderProducts } from '../script.js';
-        
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const products = await loadProducts('antibacterial');
-                renderProducts(products, '#products-container');
-            } catch (error) {
-                console.error('Ошибка загрузки товаров:', error);
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Тестовые данные для антибактериального мыла
+            const antibacterialProducts = [
+                {
+                    id: 2,
+                    name: "Антибактериальное с чайным деревом",
+                    description: "Защита от бактерий с маслом чайного дерева",
+                    price: 420,
+                    image: "https://i.imgur.com/7Q5W6lF.jpg",
+                    badge: "Новинка"
+                },
+                {
+                    id: 6,
+                    name: "Антибактериальное с эвкалиптом",
+                    description: "Освежающее мыло с эвкалиптовым маслом",
+                    price: 400,
+                    image: "https://i.imgur.com/VvJ7h3Q.jpg"
+                }
+            ];
+
+            // Рендерим товары
+            const container = document.getElementById('products-container');
+            if (container) {
+                container.innerHTML = antibacterialProducts.map(product => `
+                    <div class="product-card" data-id="${product.id}">
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}">
+                            ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                        </div>
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                            <p>${product.description}</p>
+                            <div class="product-price">${product.price} ₽</div>
+                            <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                        </div>
+                    </div>
+                `).join('');
             }
+
+            // Обновляем счетчик корзины
+            updateCartCount();
         });
+
+        function updateCartCount() {
+            document.querySelectorAll('#cart-count').forEach(el => {
+                el.textContent = '0';
+            });
+        }
     </script>
 </body>
 </html>
