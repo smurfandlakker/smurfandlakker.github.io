@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка товара | Мыльная фантазия</title>
+    <link rel="stylesheet" href="../style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Мыльная фантазия</div>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">Главная</a></li>
+                    <li><a href="regular.html">Обычное мыло</a></li>
+                    <li><a href="antibacterial.html">Антибактериальное</a></li>
+                    <li><a href="all.html">Все продукты</a></li>
+                    <li><a href="../cart.html">Корзина</a></li>
+                    <li><a href="../reviews.html">Отзывы</a></li>
+                    <li><a href="../orders.html">Мои заказы</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon">
+                <a href="../cart.html">🛒 <span id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="product-page">
+        <div class="container" id="product-container">
+            <!-- Товар будет загружен через JS -->
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p><i class="fas fa-envelope"></i> info@soapfantasy.ru</p>
+                    <p><i class="fas fa-phone"></i> +7 953 035 30 94</p>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, д. 1</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Меню</h3>
+                    <ul>
+                        <li><a href="../index.html">Главная</a></li>
+                        <li><a href="all.html">Каталог</a></li>
+                        <li><a href="../cart.html">Корзина</a></li>
+                        <li><a href="../reviews.html">Отзывы</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../db.js"></script>
+    <script src="../script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            if (productId) {
+                loadProducts().then(products => {
+                    const product = products.find(p => p.id == productId);
+                    const container = document.getElementById('product-container');
+                    
+                    if (product && container) {
+                        container.innerHTML = `
+                            <div class="product-detail">
+                                <div class="product-detail-image">
+                                    <img src="${product.image}" alt="${product.name}">
+                                    ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
+                                </div>
+                                <div class="product-detail-info">
+                                    <h1>${product.name}</h1>
+                                    <div class="product-price">${product.price} ₽</div>
+                                    <div class="product-description">
+                                        ${product.fullDescription || product.description}
+                                    </div>
+                                    <div class="product-features">
+                                        <h3>Преимущества:</h3>
+                                        <ul>
+                                            ${product.features.map(f => `<li><i class="fas fa-check"></i> ${f}</li>`).join('')}
+                                        </ul>
+                                    </div>
+                                    <button class="btn add-to-cart" data-id="${product.id}">В корзину</button>
+                                    <a href="all.html" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в каталог</a>
+                                </div>
+                            </div>
+                        `;
+                        
+                        document.querySelector('.add-to-cart').addEventListener('click', function() {
+                            addToCart(parseInt(this.getAttribute('data-id'))).then(() => {
+                                updateCartCount();
+                                showNotification('Товар добавлен в корзину');
+                            });
+                        });
+                    } else {
+                        container.innerHTML = '<p class="no-product">Товар не найден</p>';
+                    }
+                });
+            } else {
+                document.getElementById('product-container').innerHTML = '<p class="no-product">Товар не указан</p>';
+            }
+        });
+    </script>
+</body>
+</html>
