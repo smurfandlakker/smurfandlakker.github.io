@@ -1,6 +1,6 @@
 // Инициализация базы данных
 function initDB() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) {
         const request = window.indexedDB.open('SoapFantasyDB', 1);
 
         request.onerror = function(event) {
@@ -16,26 +16,22 @@ function initDB() {
         request.onupgradeneeded = function(event) {
             const db = event.target.result;
 
-            // Создаем хранилище для продуктов
             const productsStore = db.createObjectStore('products', { keyPath: 'id' });
             productsStore.createIndex('category', 'category', { unique: false });
 
-            // Создаем хранилище для корзины
             const cartStore = db.createObjectStore('cart', { keyPath: 'id' });
 
-            // Создаем хранилище для отзывов
             const reviewsStore = db.createObjectStore('reviews', { keyPath: 'id', autoIncrement: true });
             reviewsStore.createIndex('productId', 'productId', { unique: false });
 
-            // Создаем хранилище для заказов
             const ordersStore = db.createObjectStore('orders', { keyPath: 'id', autoIncrement: true });
         };
     });
 }
 
-// Загрузка продуктов из базы данных
+// Загрузка продуктов
 function loadProducts(category = null) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) {
         initDB().then(db => {
             const transaction = db.transaction(['products'], 'readonly');
             const store = transaction.objectStore('products');
@@ -49,7 +45,7 @@ function loadProducts(category = null) {
             }
 
             request.onsuccess = function() {
-                resolve(request.result);
+                resolve(request.result || []);
             };
 
             request.onerror = function(event) {
@@ -61,86 +57,38 @@ function loadProducts(category = null) {
     });
 }
 
-// Загрузка избранных продуктов на главную страницу
-function loadFeaturedProducts() {
-    loadProducts().then(products => {
-        const featuredContainer = document.getElementById('featured-products');
-        if (featuredContainer) {
-            // Выбираем 4 случайных продукта
-            const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
-            
-            featuredContainer.innerHTML = featuredProducts.map(product => `
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
-                    </div>
-                    <div class="product-info">
-                        <h3>${product.name}</h3>
-                        <p>${product.description}</p>
-                        <div class="product-price">${product.price} ₽</div>
-                        <button class="add-to-cart" data-id="${product.id}">В корзину</button>
-                    </div>
-                </div>
-            `).join('');
-
-            // Добавляем обработчики событий для кнопок "В корзину"
-            document.querySelectorAll('.add-to-cart').forEach(button => {
-                button.addEventListener('click', function() {
-                    const productId = parseInt(this.getAttribute('data-id'));
-                    addToCart(productId);
-                });
-            });
-        }
-    }).catch(error => {
-        console.error('Ошибка при загрузке продуктов:', error);
-    });
-}
-
-// Добавление товара в корзину
+// Добавление в корзину
 function addToCart(productId) {
-    initDB().then(db => {
-        // Сначала получаем информацию о продукте
-        const transaction = db.transaction(['products'], 'readonly');
-        const productsStore = transaction.objectStore('products');
-        const request = productsStore.get(productId);
+    return new Promise((resolve, reject) {
+        initDB().then(db => {
+            const transaction = db.transaction(['products'], 'readonly');
+            const productsStore = transaction.objectStore('products');
+            const request = productsStore.get(productId);
 
-        request.onsuccess = function() {
-            const product = request.result;
-            if (product) {
-                // Теперь добавляем в корзину
-                const cartTransaction = db.transaction(['cart'], 'readwrite');
-                const cartStore = cartTransaction.objectStore('cart');
-                
-                // Проверяем, есть ли уже такой товар в корзине
-                const cartRequest = cartStore.get(productId);
-                
-                cartRequest.onsuccess = function() {
-                    const existingItem = cartRequest.result;
-                    if (existingItem) {
-                        // Увеличиваем количество
-                        existingItem.quantity += 1;
-                        cartStore.put(existingItem);
-                    } else {
-                        // Добавляем новый товар
-                        product.quantity = 1;
-                        cartStore.add(product);
-                    }
+            request.onsuccess = function() {
+                const product = request.result;
+                if (product) {
+                    const cartTransaction = db.transaction(['cart'], 'readwrite');
+                    const cartStore = cartTransaction.objectStore('cart');
                     
-                    updateCartCount();
-                    showNotification('Товар добавлен в корзину');
-                };
-                
-                cartRequest.onerror = function(event) {
-                    console.error('Ошибка при добавлении в корзину:', event.target.error);
-                };
-            }
-        };
-
-        request.onerror = function(event) {
-            console.error('Ошибка при получении продукта:', event.target.error);
-        };
-    }).catch(error => {
-        console.error('Ошибка при добавлении в корзину:', error);
+                    const cartRequest = cartStore.get(productId);
+                    
+                    cartRequest.onsuccess = function() {
+                        const existingItem = cartRequest.result;
+                        if (existingItem) {
+                            existingItem.quantity += 1;
+                            cartStore.put(existingItem).onsuccess = resolve;
+                        } else {
+                            product.quantity = 1;
+                            cartStore.add(product).onsuccess = resolve;
+                        }
+                        
+                        updateCartCount();
+                        showNotification('Товар добавлен в корзину');
+                    };
+                }
+            };
+        }).catch(reject);
     });
 }
 
@@ -153,37 +101,83 @@ function updateCartCount() {
 
         request.onsuccess = function() {
             const count = request.result;
-            const cartCountElements = document.querySelectorAll('#cart-count');
-            cartCountElements.forEach(element => {
-                element.textContent = count;
+            document.querySelectorAll('#cart-count').forEach(el => {
+                el.textContent = count;
             });
         };
-    }).catch(error => {
-        console.error('Ошибка при обновлении счетчика корзины:', error);
-    });
+    }).catch(console.error);
 }
 
-// Показать уведомление
+// Уведомления
 function showNotification(message) {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.textContent = message;
     document.body.appendChild(notification);
     
-    setTimeout(() => {
-        notification.classList.add('show');
-    }, 10);
-    
+    setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => {
         notification.classList.remove('show');
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
+        setTimeout(() => document.body.removeChild(notification), 300);
     }, 3000);
 }
 
-// Инициализация базы данных с тестовыми данными (выполняется один раз)
-function initializeWithSampleData() {
+// Инициализация тестовых данных
+function initializeSampleProducts() {
+    const sampleProducts = [
+        {
+            id: 1,
+            name: "Лавандовое мыло",
+            description: "Успокаивающее мыло с натуральной лавандой",
+            fullDescription: "Мыло с натуральным маслом лаванды обладает успокаивающим эффектом. Идеально подходит для вечернего использования.",
+            features: ["Увлажняет кожу", "Антистресс-эффект", "Гипоаллергенно"],
+            price: 350,
+            category: "regular",
+            image: "https://i.pinimg.com/736x/8f/77/51/8f775188416b88ea67b4bf981c15e489.jpg",
+            badge: "Хит продаж"
+        },
+        {
+            id: 2,
+            name: "Антибактериальное с чайным деревом",
+            description: "Защита от бактерий с маслом чайного дерева",
+            fullDescription: "Мыло с маслом чайного дерева эффективно борется с бактериями и воспалениями. Рекомендуется для проблемной кожи.",
+            features: ["Антибактериальный эффект", "Помогает при воспалениях", "Подходит для жирной кожи"],
+            price: 420,
+            category: "antibacterial",
+            image: "https://i.pinimg.com/736x/7d/d6/be/7dd6be90d1d7dd978c71314ec7710a53.jpg",
+            badge: "Новинка"
+        }
+    ];
+
+    return new Promise((resolve, reject) {
+        initDB().then(db => {
+            const transaction = db.transaction(['products'], 'readwrite');
+            const store = transaction.objectStore('products');
+            
+            sampleProducts.forEach(product => {
+                store.add(product);
+            });
+
+            transaction.oncomplete = () => resolve(sampleProducts);
+            transaction.onerror = (event) => reject(event.target.error);
+        }).catch(reject);
+    });
+}
+
+// Обработка кликов по товарам
+document.addEventListener('DOMContentLoaded', function() {
+    // Клик по карточке товара
+    document.addEventListener('click', function(e) {
+        const productCard = e.target.closest('.product-card');
+        if (productCard && !e.target.classList.contains('add-to-cart')) {
+            const productId = productCard.getAttribute('data-id');
+            if (productId) {
+                window.location.href = `product.html?id=${productId}`;
+            }
+        }
+    });
+
+    // Инициализация данных
     initDB().then(db => {
         const transaction = db.transaction(['products'], 'readonly');
         const store = transaction.objectStore('products');
@@ -191,78 +185,15 @@ function initializeWithSampleData() {
 
         countRequest.onsuccess = function() {
             if (countRequest.result === 0) {
-                // База данных пуста, добавляем тестовые данные
-                const sampleProducts = [
-                    {
-                        id: 1,
-                        name: 'Лавандовое мыло',
-                        description: 'Успокаивающее мыло с натуральной лавандой',
-                        price: 350,
-                        category: 'regular',
-                        image: 'https://i.pinimg.com/736x/8f/77/51/8f775188416b88ea67b4bf981c15e489.jpg'
-                    },
-                    {
-                        id: 2,
-                        name: 'Медовое мыло',
-                        description: 'Питательное мыло с натуральным медом',
-                        price: 380,
-                        category: 'regular',
-                        image: 'https://avatars.mds.yandex.net/i?id=56047d48b27a997c19913fe86efffd8e_sr-9151390-images-thumbs&n=13'
-                    },
-                    {
-                        id: 3,
-                        name: 'Антибактериальное с чайным деревом',
-                        description: 'Защита от бактерий с маслом чайного дерева',
-                        price: 420,
-                        category: 'antibacterial',
-                        image: 'https://i.pinimg.com/736x/7d/d6/be/7dd6be90d1d7dd978c71314ec7710a53.jpg'
-                    },
-                    {
-                        id: 4,
-                        name: 'Цитрусовый заряд',
-                        description: 'Бодрящее мыло с цитрусовыми маслами',
-                        price: 370,
-                        category: 'regular',
-                        image: 'https://avatars.mds.yandex.net/i?id=2722169426275c85e9191d370eccea2d_l-5304992-images-thumbs&n=13'
-                    },
-                    {
-                        id: 5,
-                        name: 'Антибактериальное с эвкалиптом',
-                        description: 'Очищающее мыло с эвкалиптовым маслом',
-                        price: 400,
-                        category: 'antibacterial',
-                        image: 'https://i.pinimg.com/736x/65/5b/53/655b53a1f727a252ddfa46b6c4f29c2e.jpg'
-                    },
-                    {
-                        id: 6,
-                        name: 'Кофейный скраб',
-                        description: 'Мыло-скраб с кофейной гущей',
-                        price: 390,
-                        category: 'regular',
-                        image: 'https://avatars.mds.yandex.net/get-pdb/51720/9d12ea46-96ed-41bf-a0e4-1c1f6b0a18cd/s1200?webp=false'
-                    }
-                ];
-
-                const addTransaction = db.transaction(['products'], 'readwrite');
-                const addStore = addTransaction.objectStore('products');
-                
-                sampleProducts.forEach(product => {
-                    addStore.add(product);
-                });
+                initializeSampleProducts().catch(console.error);
             }
         };
-    }).catch(error => {
-        console.error('Ошибка при инициализации базы данных:', error);
-    });
-}
+    }).catch(console.error);
 
-// Вызов инициализации при первой загрузке
-document.addEventListener('DOMContentLoaded', function() {
-    initializeWithSampleData();
     updateCartCount();
 });
 
-// Добавление стилей для уведомлений
+// Стили для уведомлений
 const notificationStyles = document.createElement('style');
 notificationStyles.textContent = `
 .notification {
@@ -279,71 +210,8 @@ notificationStyles.textContent = `
     transition: opacity 0.3s;
     z-index: 1000;
 }
-
 .notification.show {
     opacity: 1;
 }
 `;
 document.head.appendChild(notificationStyles);
-// Функция для сокращения текста
-function truncateText(text, maxLength) {
-    if (!text) return '';
-    if (text.length > maxLength) {
-        return text.substring(0, maxLength) + '...';
-    }
-    return text;
-}
-
-// Обработка кликов по карточкам товаров
-document.addEventListener('DOMContentLoaded', function() {
-    // Обработка кликов по карточкам товаров
-    document.addEventListener('click', function(e) {
-        const productCard = e.target.closest('.product-card');
-        if (productCard && !e.target.classList.contains('add-to-cart')) {
-            const productId = productCard.dataset.id;
-            if (productId) {
-                window.location.href = `product.html?id=${productId}`;
-            }
-        }
-    });
-    
-    // Обновляем функцию renderProducts для всех страниц
-    function renderProducts(products, containerSelector) {
-        const container = document.querySelector(containerSelector);
-        if (container) {
-            container.innerHTML = products.map(product => `
-                <div class="product-card" data-id="${product.id}">
-                    <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}">
-                        ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
-                    </div>
-                    <div class="product-info">
-                        <h3 title="${product.name}">${truncateText(product.name, 20)}</h3>
-                        <p title="${product.description}">${truncateText(product.description, 60)}</p>
-                        <div class="product-price">${product.price} ₽</div>
-                        <button class="add-to-cart" data-id="${product.id}">В корзину</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-    }
-    
-    // Переопределяем функцию loadFeaturedProducts
-    window.loadFeaturedProducts = function() {
-        loadProducts().then(products => {
-            const featuredContainer = document.getElementById('featured-products');
-            if (featuredContainer) {
-                const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
-                renderProducts(featuredProducts, '#featured-products');
-                
-                document.querySelectorAll('.add-to-cart').forEach(button => {
-                    button.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        const productId = parseInt(this.getAttribute('data-id'));
-                        addToCart(productId);
-                    });
-                });
-            }
-        });
-    };
-});
