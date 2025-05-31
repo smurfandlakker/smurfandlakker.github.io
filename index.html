@@ -14,7 +14,7 @@
             <div class="logo">Мыльная фантазия</div>
             <nav>
                 <ul>
-                    <li><a href="index.html">Главная</a></li>
+                    <li><a href="index.html" class="active">Главная</a></li>
                     <li><a href="products/regular.html">Обычное мыло</a></li>
                     <li><a href="products/antibacterial.html">Антибактериальное</a></li>
                     <li><a href="products/all.html">Все продукты</a></li>
@@ -53,9 +53,9 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Контакты</h3>
-                    <p><i class="fas fa-envelope"></i> Email: info@soapfantasy.ru</p>
-                    <p><i class="fas fa-phone"></i> Телефон: +7 953 035 30 94</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Адрес: г. Москва, ул. Мыльная, д. 1</p>
+                    <p><i class="fas fa-envelope"></i> info@soapfantasy.ru</p>
+                    <p><i class="fas fa-phone"></i> +7 953 035 30 94</p>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
@@ -81,41 +81,17 @@
         </div>
     </footer>
 
-    <script src="db.js"></script>
-    <script src="script.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            loadProducts().then(products => {
-                const featuredContainer = document.getElementById('featured-products');
-                if (featuredContainer) {
-                    const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
-                    
-                    featuredContainer.innerHTML = featuredProducts.map(product => `
-                        <div class="product-card" data-id="${product.id}">
-                            <div class="product-image">
-                                <img src="${product.image}" alt="${product.name}">
-                                ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
-                            </div>
-                            <div class="product-info">
-                                <h3>${product.name.length > 20 ? product.name.substring(0, 20) + '...' : product.name}</h3>
-                                <p>${product.description.length > 60 ? product.description.substring(0, 60) + '...' : product.description}</p>
-                                <div class="product-price">${product.price} ₽</div>
-                                <button class="add-to-cart" data-id="${product.id}">В корзину</button>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    document.querySelectorAll('.add-to-cart').forEach(button => {
-                        button.addEventListener('click', function(e) {
-                            e.stopPropagation();
-                            const productId = parseInt(this.getAttribute('data-id'));
-                            addToCart(productId);
-                        });
-                    });
-                }
-            });
-            
-            updateCartCount();
+    <script type="module">
+        import { loadProducts, renderProducts } from './script.js';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const products = await loadProducts();
+                const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
+                renderProducts(featuredProducts, '#featured-products');
+            } catch (error) {
+                console.error('Ошибка загрузки товаров:', error);
+            }
         });
     </script>
 </body>
