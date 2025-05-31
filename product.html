@@ -40,9 +40,9 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>Контакты</h3>
-                    <p><i class="fas fa-envelope"></i> Email: info@soapfantasy.ru</p>
-                    <p><i class="fas fa-phone"></i> Телефон: +7 953 035 30 94</p>
-                    <p><i class="fas fa-map-marker-alt"></i> Адрес: г. Москва, ул. Мыльная, д. 1</p>
+                    <p><i class="fas fa-envelope"></i> info@soapfantasy.ru</p>
+                    <p><i class="fas fa-phone"></i> +7 953 035 30 94</p>
+                    <p><i class="fas fa-map-marker-alt"></i> г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
@@ -52,14 +52,6 @@
                         <li><a href="../cart.html">Корзина</a></li>
                         <li><a href="../reviews.html">Отзывы</a></li>
                     </ul>
-                </div>
-                <div class="footer-section">
-                    <h3>Мы в соцсетях</h3>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-vk"></i></a>
-                        <a href="#"><i class="fab fa-telegram"></i></a>
-                    </div>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -95,14 +87,12 @@
                                     <div class="product-description">
                                         ${product.fullDescription || product.description}
                                     </div>
-                                    ${product.features ? `
                                     <div class="product-features">
-                                        <h3>Достоинства:</h3>
+                                        <h3>Преимущества:</h3>
                                         <ul>
                                             ${product.features.map(f => `<li><i class="fas fa-check"></i> ${f}</li>`).join('')}
                                         </ul>
                                     </div>
-                                    ` : ''}
                                     <button class="btn add-to-cart" data-id="${product.id}">В корзину</button>
                                     <a href="all.html" class="back-link"><i class="fas fa-arrow-left"></i> Вернуться в каталог</a>
                                 </div>
@@ -110,7 +100,10 @@
                         `;
                         
                         document.querySelector('.add-to-cart').addEventListener('click', function() {
-                            addToCart(parseInt(this.getAttribute('data-id')));
+                            addToCart(parseInt(this.getAttribute('data-id'))).then(() => {
+                                updateCartCount();
+                                showNotification('Товар добавлен в корзину');
+                            });
                         });
                     } else {
                         container.innerHTML = '<p class="no-product">Товар не найден</p>';
