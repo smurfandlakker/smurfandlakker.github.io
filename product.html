@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка товара | Мыльная фантазия</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">Мыльная фантазия</div>
+            <nav>
+                <ul>
+                    <li><a href="../index.html">Главная</a></li>
+                    <li><a href="regular.html">Обычное мыло</a></li>
+                    <li><a href="antibacterial.html">Антибактериальное</a></li>
+                    <li><a href="all.html">Все продукты</a></li>
+                    <li><a href="../cart.html">Корзина</a></li>
+                    <li><a href="../reviews.html">Отзывы</a></li>
+                    <li><a href="../orders.html">Мои заказы</a></li>
+                </ul>
+            </nav>
+            <div class="cart-icon">
+                <a href="../cart.html">🛒 <span id="cart-count">0</span></a>
+            </div>
+        </div>
+    </header>
+
+    <main class="product-page">
+        <div class="container" id="product-container">
+            <!-- Товар будет загружен через JS -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Мыльная фантазия</h3>
+                    <p>Рукодельное мыло ручной работы</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Контакты</h3>
+                    <p>Email: info@soapfantasy.ru</p>
+                    <p>Телефон: +7 953 035 30 94</p>
+                    <p>Адрес: г. Москва, ул. Мыльная, д. 1</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Меню</h3>
+                    <ul>
+                        <li><a href="../index.html">Главная</a></li>
+                        <li><a href="all.html">Продукты</a></li>
+                        <li><a href="../cart.html">Корзина</a></li>
+                        <li><a href="../reviews.html">Отзывы</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../db.js"></script>
+    <script src="../script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCartCount();
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id');
+            
+            if (productId) {
+                loadProducts().then(products => {
+                    const product = products.find(p => p.id == productId);
+                    if (product) {
+                        renderProductDetails(product);
+                    } else {
+                        document.getElementById('product-container').innerHTML = 
+                            '<p class="no-product">Товар не найден</p>';
+                    }
+                });
+            } else {
+                document.getElementById('product-container').innerHTML = 
+                    '<p class="no-product">Товар не указан</p>';
+            }
+            
+            function renderProductDetails(product) {
+                const container = document.getElementById('product-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="product-detail">
+                            <div class="product-detail-image">
+                                <img src="${product.image}" alt="${product.name}">
+                            </div>
+                            <div class="product-detail-info">
+                                <h1>${product.name}</h1>
+                                <div class="product-price">${product.price} ₽</div>
+                                <div class="product-description">
+                                    ${product.fullDescription || product.description}
+                                </div>
+                                ${product.features ? `
+                                <div class="product-features">
+                                    <h3>Достоинства:</h3>
+                                    <ul>
+                                        ${product.features.map(f => `<li>${f}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                ` : ''}
+                                <button class="add-to-cart" data-id="${product.id}">В корзину</button>
+                                <a href="all.html" class="back-to-catalog">← Вернуться в каталог</a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Добавляем обработчик для кнопки "В корзину"
+                    document.querySelector('.add-to-cart').addEventListener('click', function() {
+                        const productId = parseInt(this.getAttribute('data-id'));
+                        addToCart(productId);
+                    });
+                }
+            }
+        });
+    </script>
+
+    <style>
+        .product-page {
+            padding: 40px 0;
+        }
+
+        .no-product {
+            text-align: center;
+            padding: 50px 0;
+            font-size: 18px;
+        }
+
+        .product-detail {
+            display: flex;
+            gap: 40px;
+        }
+
+        .product-detail-image {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .product-detail-image img {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-detail-info {
+            flex: 1;
+        }
+
+        .product-detail-info h1 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .product-description {
+            margin: 20px 0;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .product-features {
+            background-color: var(--light-color);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .product-features h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .product-features ul {
+            list-style-type: none;
+        }
+
+        .product-features li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+        }
+
+        .product-features li:before {
+            content: "✓";
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .back-to-catalog {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .back-to-catalog:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .product-detail {
+                flex-direction: column;
+            }
+            
+            .product-detail-image {
+                max-width: 100%;
+            }
+        }
+    </style>
+</body>
+</html>
