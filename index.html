@@ -6,6 +6,7 @@
     <title>Мыльная фантазия - Рукодельное мыло ручной работы</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <header>
@@ -45,39 +46,36 @@
                 </div>
             </div>
         </section>
-
-        <section class="about">
-            <div class="container">
-                <h2>О нашем мыле</h2>
-                <p>Мы создаем мыло с любовью и заботой о вашей коже. Только натуральные ингредиенты, экологичная упаковка и уникальный дизайн каждого кусочка.</p>
-            </div>
-        </section>
     </main>
 
-    <footer>
+    <footer class="site-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h3>Мыльная фантазия</h3>
-                    <p>Рукодельное мыло ручной работы</p>
-                </div>
-                <div class="footer-section">
                     <h3>Контакты</h3>
-                    <p>Email: info@soapfantasy.ru</p>
-                    <p>Телефон: +7 953 035 30 94</p>
-                    <p>Адрес: г. Москва, ул. Мыльная, д. 1</p>
+                    <p><i class="fas fa-envelope"></i> Email: info@soapfantasy.ru</p>
+                    <p><i class="fas fa-phone"></i> Телефон: +7 953 035 30 94</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Адрес: г. Москва, ул. Мыльная, д. 1</p>
                 </div>
                 <div class="footer-section">
                     <h3>Меню</h3>
                     <ul>
                         <li><a href="index.html">Главная</a></li>
-                        <li><a href="products/all.html">Продукты</a></li>
+                        <li><a href="products/all.html">Каталог</a></li>
                         <li><a href="cart.html">Корзина</a></li>
                         <li><a href="reviews.html">Отзывы</a></li>
                     </ul>
                 </div>
+                <div class="footer-section">
+                    <h3>Мы в соцсетях</h3>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-vk"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                    </div>
+                </div>
             </div>
-            <div class="copyright">
+            <div class="footer-bottom">
                 <p>&copy; 2023 Мыльная фантазия. Все права защищены.</p>
             </div>
         </div>
@@ -87,28 +85,26 @@
     <script src="script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Загрузка избранных товаров
             loadProducts().then(products => {
                 const featuredContainer = document.getElementById('featured-products');
                 if (featuredContainer) {
-                    // Выбираем 4 случайных продукта
                     const featuredProducts = products.sort(() => 0.5 - Math.random()).slice(0, 4);
                     
                     featuredContainer.innerHTML = featuredProducts.map(product => `
                         <div class="product-card" data-id="${product.id}">
                             <div class="product-image">
                                 <img src="${product.image}" alt="${product.name}">
+                                ${product.badge ? `<div class="product-badge">${product.badge}</div>` : ''}
                             </div>
                             <div class="product-info">
-                                <h3 title="${product.name}">${truncateText(product.name, 20)}</h3>
-                                <p title="${product.description}">${truncateText(product.description, 60)}</p>
+                                <h3>${product.name.length > 20 ? product.name.substring(0, 20) + '...' : product.name}</h3>
+                                <p>${product.description.length > 60 ? product.description.substring(0, 60) + '...' : product.description}</p>
                                 <div class="product-price">${product.price} ₽</div>
                                 <button class="add-to-cart" data-id="${product.id}">В корзину</button>
                             </div>
                         </div>
                     `).join('');
 
-                    // Добавляем обработчики событий для кнопок "В корзину"
                     document.querySelectorAll('.add-to-cart').forEach(button => {
                         button.addEventListener('click', function(e) {
                             e.stopPropagation();
@@ -117,19 +113,10 @@
                         });
                     });
                 }
-            }).catch(error => {
-                console.error('Ошибка при загрузке продуктов:', error);
             });
             
             updateCartCount();
         });
-
-        function truncateText(text, maxLength) {
-            if (text.length > maxLength) {
-                return text.substring(0, maxLength) + '...';
-            }
-            return text;
-        }
     </script>
 </body>
 </html>
