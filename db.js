@@ -1,14 +1,12 @@
 // db.js
 const DB_NAME = 'SoapFantasyDB';
-const DB_VERSION = 3;
+const DB_VERSION = 1;
 
 const sampleProducts = [
   {
     id: 1,
     name: "Лавандовое мыло",
     description: "Успокаивающее мыло с натуральной лавандой",
-    fullDescription: "Мыло с натуральным маслом лаванды обладает успокаивающим эффектом. Идеально подходит для вечернего использования.",
-    features: ["Увлажняет кожу", "Антистресс-эффект", "Гипоаллергенно"],
     price: 350,
     category: "regular",
     image: "https://i.imgur.com/KZJ8zNq.jpg",
@@ -18,8 +16,6 @@ const sampleProducts = [
     id: 2,
     name: "Антибактериальное с чайным деревом",
     description: "Защита от бактерий с маслом чайного дерева",
-    fullDescription: "Мыло с маслом чайного дерева эффективно борется с бактериями и воспалениями.",
-    features: ["Антибактериальный эффект", "Помогает при воспалениях"],
     price: 420,
     category: "antibacterial",
     image: "https://i.imgur.com/7Q5W6lF.jpg",
@@ -32,8 +28,7 @@ function initDB() {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onerror = (event) => {
-      console.error('Database error:', event.target.error);
-      reject(event.target.error);
+      reject(`Database error: ${event.target.error}`);
     };
 
     request.onsuccess = (event) => {
@@ -47,10 +42,6 @@ function initDB() {
       if (!db.objectStoreNames.contains('products')) {
         const store = db.createObjectStore('products', { keyPath: 'id' });
         store.createIndex('category', 'category', { unique: false });
-      }
-      
-      if (!db.objectStoreNames.contains('cart')) {
-        db.createObjectStore('cart', { keyPath: 'id' });
       }
     };
   });
@@ -79,30 +70,31 @@ function addSampleProducts(db) {
       store.add(product);
     });
     
-    tx.oncomplete = () => resolve();
+    tx.oncomplete = () => {
+      console.log('Sample products added');
+      resolve();
+    };
   });
 }
 
 export function loadProducts(category = null) {
-  return new Promise((resolve, reject) => {
-    initDB().then(db => {
-      const tx = db.transaction('products', 'readonly');
-      const store = tx.objectStore('products');
-      let request;
-
-      if (category) {
-        const index = store.index('category');
-        request = index.getAll(category);
-      } else {
-        request = store.getAll();
-      }
-
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = (event) => reject(event.target.error);
-    }).catch(reject);
+  return new Promise((resolve) => {
+    initDB()
+      .then(db => {
+        const tx = db.transaction('products', 'readonly');
+        const store = tx.objectStore('products');
+        let request = category 
+          ? store.index('category').getAll(category) 
+          : store.getAll();
+        
+        request.onsuccess = () => resolve(request.result || []);
+      })
+      .catch(error => {
+        console.error('Error loading products:', error);
+        resolve(sampleProducts); // Fallback to sample data
+      });
   });
 }
-
 export function addToCart(productId) {
   return new Promise((resolve, reject) => {
     initDB().then(db => {
